@@ -64,8 +64,8 @@ TeleopDriveTrainController::~TeleopDriveTrainController() = default;
 
 void TeleopDriveTrainController::update()
 {
-	double controller_turn = p_user_controller->getLeftXAxis();
-	double controller_throttle = -p_user_controller->getRightYAxis();
+	double controller_turn = p_user_controller->getRightXAxis();
+	double controller_throttle = -p_user_controller->getLeftYAxis();
 	//                           ^: For some reason, the Y axis is inverted
 
 
