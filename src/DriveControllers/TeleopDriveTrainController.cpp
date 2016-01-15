@@ -151,14 +151,27 @@ void TeleopDriveTrainController::setTurn(double throttle, double turn)
 		{
 			double turn_radius = Configs::MAX_TURN_RADIUS - (Configs::MAX_TURN_RADIUS * turn_steepness);
 
-			return outside_speed * (turn_radius / (turn_radius - Configs::ROBOT_WIDTH) );
+			return outside_speed * (turn_radius / (turn_radius + Configs::ROBOT_WIDTH) );
 		};
 	if(current_type == DriveType::TANK)
 	{
-		double l_side = throttle;
-		double r_side = calcInsideWheelSpeed(throttle, turn);
+		double l_side;
+		double r_side;
+
+		if(turn > 0)
+		{
+			l_side = throttle;
+			r_side = calcInsideWheelSpeed(throttle, turn);
+		}
+		else
+		{
+			l_side = calcInsideWheelSpeed(throttle, turn);
+			r_side = throttle;
+		}
 
 		//TODO: IMPLEMENT REVERSE TURNING
+
+		std::cout << r_side << std::endl;
 
 		assert(l_side >= -1 && l_side <= 1);
 		assert(r_side >= -1 && r_side <= 1);
