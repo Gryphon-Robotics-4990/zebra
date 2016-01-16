@@ -11,7 +11,7 @@
 #include "Configs/Configs.h"
 #include "Logging/Logger.h"
 
-#include <ctime>
+#include <chrono>
 #include <cmath>
 #include <iostream>
 #include <cassert>
@@ -21,23 +21,26 @@ namespace
 	class FindThrottle
 	{
 	private:
+		typedef std::chrono::high_resolution_clock clock;
 		float _prev_throttle = 0;
-		float _prev_time = clock() / (double)CLOCKS_PER_SEC;
+		auto _prev_time = clock::now;
 	public:
 		double findThrottle(double throttle)
 		{
 			//stores last throttle!
 
 			//clock returns clock ticks since epoch
-			float current_time = clock() / (double)CLOCKS_PER_SEC;
+			//in seconds
+			auto current_time = clock::now;
 
-			if(Configs::ACCEL_TIME != 0)
+			if(Configs::ACCEL_TIME > 0)
 			{
 				double accel = (throttle - _prev_throttle) / Configs::ACCEL_TIME;
-				float delta_time = current_time - _prev_time;
-				//converts to milliseconds
-				constexpr float MILLISEC_IN_SEC = 1000;
-				delta_time *= MILLISEC_IN_SEC;
+				double delta_time = std::chrono::duration_cast<std::chrono::duration<double> >(current_time - _prev_time);
+
+				constexpr double MILLI_TO_SEC = 1000;
+
+				delta_time *= MILLI_TO_SEC;
 
 				double delta_throttle = delta_time * accel;
 
@@ -50,7 +53,7 @@ namespace
 			//sets prev throttle to current one
 			_prev_throttle = throttle;
 
-			return (fabs(throttle) <= Configs::THROTTLE_CUTOFF) ? 0.0 : throttle;
+			return (std::abs(throttle) <= Configs::THROTTLE_CUTOFF) ? 0.0 : throttle;
 		}
 	};
 }
@@ -70,12 +73,12 @@ void TeleopDriveTrainController::update()
 
 
 	//moved it out of joystick into here
-	if(abs(controller_turn) <= Configs::ZERO_THROTTLE_THRESHOLD)
+	if(std::abs(controller_turn) <= Configs::ZERO_THROTTLE_THRESHOLD)
 	{
 		controller_turn = 0;
 	}
 
-	if(abs(controller_throttle) <= Configs::ZERO_THROTTLE_THRESHOLD)
+	if(std::abs(controller_throttle) <= Configs::ZERO_THROTTLE_THRESHOLD)
 	{
 		controller_throttle = 0;
 	}
