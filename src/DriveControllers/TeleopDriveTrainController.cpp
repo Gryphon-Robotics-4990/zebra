@@ -42,6 +42,8 @@ namespace
 
 				delta_time *= MILLI_TO_SEC;
 
+				std::cout << "Delta time is " << delta_time << " ms";
+
 				double delta_throttle = delta_time * accel;
 
 				throttle = _prev_throttle + delta_throttle;
