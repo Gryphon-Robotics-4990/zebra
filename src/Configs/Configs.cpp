@@ -8,7 +8,7 @@
 #include <Configs/Configs.h>
 
 //milli seconds
-const double Configs::ACCEL_TIME = 175.0;
+const double Configs::ACCEL_TIME = 100.0;
 
 //in feet
 const double Configs::ZERO_THROTTLE_THRESHOLD = 0.0;

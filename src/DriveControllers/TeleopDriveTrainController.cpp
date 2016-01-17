@@ -64,42 +64,46 @@ TeleopDriveTrainController::~TeleopDriveTrainController() = default;
 
 void TeleopDriveTrainController::update()
 {
-	double controller_turn = p_user_controller->getRightXAxis();
-	double controller_throttle = -p_user_controller->getLeftYAxis();
+	//double controller_turn = p_user_controller->getRightXAxis();
+	//double controller_throttle = -p_user_controller->getLeftYAxis();
 	//                           ^: For some reason, the Y axis is inverted
-
-
-	//moved it out of joystick into here
-	if(abs(controller_turn) <= Configs::ZERO_THROTTLE_THRESHOLD)
-	{
-		controller_turn = 0;
-	}
-
-	if(abs(controller_throttle) <= Configs::ZERO_THROTTLE_THRESHOLD)
-	{
-		controller_throttle = 0;
-	}
-
-	std::cout << "CONTROLLER TURN: " << controller_turn << std::endl;
-	std::cout << "CONTROLLER THROT: " << controller_throttle << std::endl;
-
-	static FindThrottle ft_turn{};
-	static FindThrottle ft_throt{};
+//
+//
+//	//moved it out of joystick into here
+//	if(abs(controller_turn) <= Configs::ZERO_THROTTLE_THRESHOLD)
+//	{
+//		controller_turn = 0;
+//	}
+//
+//	if(abs(controller_throttle) <= Configs::ZERO_THROTTLE_THRESHOLD)
+//	{
+//		controller_throttle = 0;
+//	}
+//
+//	std::cout << "CONTROLLER TURN: " << controller_turn << std::endl;
+//	std::cout << "CONTROLLER THROT: " << controller_throttle << std::endl;
+//
+//	static FindThrottle ft_turn{};
+//	static FindThrottle ft_throt{};
 
 	//is l side?
-	double throttle = ft_throt.findThrottle(controller_throttle * Configs::THROTTLE_MULTIPLIER);
-	double turn = ft_turn.findThrottle(controller_turn * Configs::THROTTLE_MULTIPLIER);
+//	double throttle = ft_throt.findThrottle(controller_throttle * Configs::THROTTLE_MULTIPLIER);
+//	double turn = ft_turn.findThrottle(controller_turn * Configs::THROTTLE_MULTIPLIER);
 
-	std::cout << "CALC THROT: " << throttle << std::endl;
-	std::cout << "CALC TURN: " << turn << std::endl;
+	double throttle = -p_user_controller->getLeftYAxis();
+	double turn = p_user_controller->getRightXAxis();
+	//            ^: For some reason, the Y axis is inverted;
+
+	std::cout << "THROT: " << throttle << std::endl;
+	std::cout << "TURN: " << turn << std::endl;
 
 	assert(throttle >= -1 && throttle <= 1);
 	assert(turn >= -1 && turn <= 1);
 
-	if(throttle != 0 && turn != 0)
-	{
-		setTurn(throttle, turn);
-	}
+
+	setTurn(throttle, turn);
+
+/*
 	else if(throttle != 0 && turn == 0)
 	{
 		setStraight(throttle);
@@ -113,7 +117,7 @@ void TeleopDriveTrainController::update()
 		const double STOP = 0.0;
 		setStraight(STOP);
 	}
-
+*/
 	auto getTime = []()
 		{
 		time_t t;
@@ -158,14 +162,14 @@ void TeleopDriveTrainController::setTurn(double throttle, double turn)
 		double l_side;
 		double r_side;
 
-		if(turn > 0)
+		if(turn >= 0)
 		{
 			l_side = throttle;
-			r_side = calcInsideWheelSpeed(throttle, turn);
+			r_side = throttle * (1 - 2 * turn);
 		}
 		else
 		{
-			l_side = calcInsideWheelSpeed(throttle, turn);
+			l_side = throttle * (1 + 2 * turn);
 			r_side = throttle;
 		}
 
